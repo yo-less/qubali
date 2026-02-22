@@ -22,5 +22,7 @@ input, select { padding: 8px; border: 1px solid #ccd6e0; border-radius: 8px; fon
 .match-row { border: 1px solid #e0e8f2; border-radius: 8px; padding: 8px; }
 .set-row { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); }
 .summary { font-weight: 600; margin-top: 8px; }
+.winner { margin-bottom: 8px; padding: 8px 10px; border-radius: 8px; background: #edf5ff; color: #154476; }
+.warning-list { margin-top: 8px; color: #9f4b00; }
 button { background: #0a66d8; color: #fff; border: none; border-radius: 10px; padding: 12px 16px; font-size: 15px; cursor: pointer; }
 button:hover { background: #0758b8; }
