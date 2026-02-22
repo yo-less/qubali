@@ -6,10 +6,6 @@ const DEFAULT_TEAMS = 4;
 const MAX_PLAYERS = 15;
 const MIN_PLAYERS = 4;
 const ENCOUNTER_COUNT = 5;
-const MATCHES = [
-  { key: "d1", label: "1. Doppel", row: 12, type: "double" },
-  { key: "d2", label: "2. Doppel", row: 14, type: "double" },
-  { key: "d3", label: "3. Doppel", row: 16, type: "double" },
 const MATCH_DEFINITIONS = [
   { key: "d1", label: "1. Doppel", type: "double", row: 12 },
   { key: "d2", label: "2. Doppel", type: "double", row: 14 },
@@ -32,7 +28,6 @@ function createEncounter() {
     guestTeam: "",
     startTime: "",
     endTime: "",
-    matches: MATCHES.map((m) => ({
     matches: MATCH_DEFINITIONS.map((m) => ({
       key: m.key,
       type: m.type,
@@ -98,11 +93,6 @@ function normalizeState(raw) {
     enc.guestTeam = srcEnc.guestTeam || "";
     enc.startTime = srcEnc.startTime || "";
     enc.endTime = srcEnc.endTime || "";
-    enc.matches = MATCHES.map((m, matchIdx) => {
-      const srcMatch = srcEnc.matches?.[matchIdx] || {};
-      return {
-        key: m.key,
-        type: srcMatch.type === "single" ? "single" : m.type,
     enc.matches = MATCH_DEFINITIONS.map((m, matchIdx) => {
       const srcMatch = srcEnc.matches?.find((match) => match?.key === m.key) || srcEnc.matches?.[matchIdx] || {};
       return {
@@ -464,7 +454,6 @@ function renderBegegnungen() {
   const guestPlayers = playersForTeam(enc.guestTeam);
 
   const matchGrid = card.querySelector(".match-grid");
-  MATCHES.forEach((m, idx) => {
   MATCH_DEFINITIONS.forEach((m, idx) => {
     const match = enc.matches[idx];
     const row = document.createElement("div");
@@ -473,7 +462,6 @@ function renderBegegnungen() {
 
     const sums = {
       home: (() => {
-        if (m.type !== "double") return "-";
         if (!isDouble) return "-";
         if (!match.home1 || !match.home2) return "-";
         const r1 = homePlayers.find((p) => p.name === match.home1)?.rank;
@@ -481,7 +469,6 @@ function renderBegegnungen() {
         return r1 && r2 ? r1 + r2 : "-";
       })(),
       guest: (() => {
-        if (m.type !== "double") return "-";
         if (!isDouble) return "-";
         if (!match.guest1 || !match.guest2) return "-";
         const r1 = guestPlayers.find((p) => p.name === match.guest1)?.rank;
@@ -542,33 +529,6 @@ function renderBegegnungen() {
           commitLineup();
         }),
       );
-    lineup.append(mkPlayerSelect(homePlayers, match.home1, isDouble ? match.home2 : "", (v) => {
-      match.home1 = v;
-      clearInvalidByRules(enc);
-      saveState();
-      renderBegegnungen();
-    }));
-    if (isDouble) {
-      lineup.append(mkPlayerSelect(homePlayers, match.home2, match.home1, (v) => {
-        match.home2 = v;
-        clearInvalidByRules(enc);
-        saveState();
-        renderBegegnungen();
-      }));
-    }
-    lineup.append(mkPlayerSelect(guestPlayers, match.guest1, isDouble ? match.guest2 : "", (v) => {
-      match.guest1 = v;
-      clearInvalidByRules(enc);
-      saveState();
-      renderBegegnungen();
-    }));
-    if (isDouble) {
-      lineup.append(mkPlayerSelect(guestPlayers, match.guest2, match.guest1, (v) => {
-        match.guest2 = v;
-        clearInvalidByRules(enc);
-        saveState();
-        renderBegegnungen();
-      }));
     }
     row.appendChild(lineup);
 
@@ -679,7 +639,6 @@ function fillBegegnungen(wb) {
 
     const totals = calcEncounter(enc);
 
-    MATCHES.forEach((m, idx) => {
     MATCH_DEFINITIONS.forEach((m, idx) => {
       const row = m.row;
       const match = enc.matches[idx];
