@@ -4,6 +4,8 @@
 }
 body { margin: 0; background: #f4f7fb; color: #182433; }
 .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.brand-header { display: flex; gap: 16px; align-items: center; margin-bottom: 14px; }
+.logo { width: 260px; max-width: 40vw; height: auto; background: white; border-radius: 10px; border: 1px solid #d8e3ee; }
 .card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
 .muted { color: #536273; }
 .hidden { display: none; }
@@ -24,5 +26,7 @@ input, select { padding: 8px; border: 1px solid #ccd6e0; border-radius: 8px; fon
 .summary { font-weight: 600; margin-top: 8px; }
 .winner { margin-bottom: 8px; padding: 8px 10px; border-radius: 8px; background: #edf5ff; color: #154476; }
 .warning-list { margin-top: 8px; color: #9f4b00; }
-button { background: #0a66d8; color: #fff; border: none; border-radius: 10px; padding: 12px 16px; font-size: 15px; cursor: pointer; }
+button { background: #0a66d8; color: #fff; border: none; border-radius: 10px; padding: 10px 14px; font-size: 15px; cursor: pointer; }
 button:hover { background: #0758b8; }
+.button-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.encounter-actions { margin: 8px 0; }

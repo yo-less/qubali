@@ -6,11 +6,18 @@
     <title>Spielberichtsbogen – Web</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   </head>
   <body>
     <main class="container">
-      <h1>Spielberichtsbogen (Web)</h1>
-      <p class="muted">Wie in der Excel-Datei: Allgemeines, Setzlisten, 1.–5. Begegnung und Export als ausgefüllte XLSX.</p>
+      <header class="brand-header">
+        <img src="qubali-logo.png" alt="Qubali Logo" class="logo" />
+        <div>
+          <h1>Spielberichtsbogen (Web)</h1>
+          <p class="muted">Allgemeines, Setzlisten, 1.–5. Begegnung und Export als XLSX/PDF.</p>
+          <p class="muted">Serverdaten: <a href="/data/entries.json" target="_blank" rel="noopener">/data/entries.json</a></p>
+        </div>
+      </header>
 
       <nav class="tabs" id="tabs"></nav>
 
@@ -18,7 +25,10 @@
       <section class="card tab-panel hidden" id="tab-setzlisten"></section>
       <section class="card tab-panel hidden" id="tab-begegnungen"></section>
 
-      <button id="downloadBtn">Ausgefüllte XLSX herunterladen</button>
+      <div class="button-row">
+        <button id="downloadBtn">Ausgefüllte XLSX herunterladen</button>
+        <button id="downloadAllPdfBtn">Alle Begegnungen als PDF herunterladen</button>
+      </div>
       <p id="status" class="muted"></p>
     </main>
 
