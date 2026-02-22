@@ -6,6 +6,10 @@ const DEFAULT_TEAMS = 4;
 const MAX_PLAYERS = 15;
 const MIN_PLAYERS = 4;
 const ENCOUNTER_COUNT = 5;
+const MATCHES = [
+  { key: "d1", label: "1. Doppel", row: 12, type: "double" },
+  { key: "d2", label: "2. Doppel", row: 14, type: "double" },
+  { key: "d3", label: "3. Doppel", row: 16, type: "double" },
 const MATCH_DEFINITIONS = [
   { key: "d1", label: "1. Doppel", type: "double", row: 12 },
   { key: "d2", label: "2. Doppel", type: "double", row: 14 },
@@ -28,6 +32,7 @@ function createEncounter() {
     guestTeam: "",
     startTime: "",
     endTime: "",
+    matches: MATCHES.map((m) => ({
     matches: MATCH_DEFINITIONS.map((m) => ({
       key: m.key,
       type: m.type,
@@ -93,6 +98,11 @@ function normalizeState(raw) {
     enc.guestTeam = srcEnc.guestTeam || "";
     enc.startTime = srcEnc.startTime || "";
     enc.endTime = srcEnc.endTime || "";
+    enc.matches = MATCHES.map((m, matchIdx) => {
+      const srcMatch = srcEnc.matches?.[matchIdx] || {};
+      return {
+        key: m.key,
+        type: srcMatch.type === "single" ? "single" : m.type,
     enc.matches = MATCH_DEFINITIONS.map((m, matchIdx) => {
       const srcMatch = srcEnc.matches?.find((match) => match?.key === m.key) || srcEnc.matches?.[matchIdx] || {};
       return {
@@ -270,6 +280,25 @@ function sumForDouble(match, side) {
 
 function validateEncounter(enc) {
   const errors = [];
+  const uniquenessBySide = { home: new Set(), guest: new Set() };
+
+  enc.matches.forEach((m, idx) => {
+    if (m.type !== "single") return;
+    ["home", "guest"].forEach((side) => {
+      const p1 = side === "home" ? m.home1 : m.guest1;
+      const p2 = side === "home" ? m.home2 : m.guest2;
+      if (p1 && p2) {
+        errors.push(`${idx + 1}. Match (${side === "home" ? "Heim" : "Gast"}): Bei Einzel darf nur ein:e Spieler:in gesetzt sein.`);
+      }
+      const selected = p1 || p2;
+      if (!selected) return;
+      if (uniquenessBySide[side].has(selected)) {
+        errors.push(`${idx + 1}. Match (${side === "home" ? "Heim" : "Gast"}): Spieler:in ${selected} ist mehrfach in Einzeln gesetzt.`);
+      }
+      uniquenessBySide[side].add(selected);
+    });
+  });
+
   ["home", "guest"].forEach((side) => {
     const seenPairings = new Set();
     const sums = [];
@@ -299,6 +328,25 @@ function validateEncounter(enc) {
 }
 
 function clearInvalidByRules(enc) {
+  ["home", "guest"].forEach((side) => {
+    const seenSinglePlayers = new Set();
+    enc.matches.forEach((m) => {
+      if (m.type !== "single") return;
+      const p1Key = side === "home" ? "home1" : "guest1";
+      const p2Key = side === "home" ? "home2" : "guest2";
+
+      if (m[p1Key] && m[p2Key]) m[p2Key] = "";
+      const selected = m[p1Key] || m[p2Key];
+      if (!selected) return;
+      if (seenSinglePlayers.has(selected)) {
+        if (m[p1Key] === selected) m[p1Key] = "";
+        if (m[p2Key] === selected) m[p2Key] = "";
+        return;
+      }
+      seenSinglePlayers.add(selected);
+    });
+  });
+
   ["home", "guest"].forEach((side) => {
     const seenPairings = new Set();
     let prevSum = -Infinity;
@@ -416,6 +464,7 @@ function renderBegegnungen() {
   const guestPlayers = playersForTeam(enc.guestTeam);
 
   const matchGrid = card.querySelector(".match-grid");
+  MATCHES.forEach((m, idx) => {
   MATCH_DEFINITIONS.forEach((m, idx) => {
     const match = enc.matches[idx];
     const row = document.createElement("div");
@@ -424,6 +473,7 @@ function renderBegegnungen() {
 
     const sums = {
       home: (() => {
+        if (m.type !== "double") return "-";
         if (!isDouble) return "-";
         if (!match.home1 || !match.home2) return "-";
         const r1 = homePlayers.find((p) => p.name === match.home1)?.rank;
@@ -431,6 +481,7 @@ function renderBegegnungen() {
         return r1 && r2 ? r1 + r2 : "-";
       })(),
       guest: (() => {
+        if (m.type !== "double") return "-";
         if (!isDouble) return "-";
         if (!match.guest1 || !match.guest2) return "-";
         const r1 = guestPlayers.find((p) => p.name === match.guest1)?.rank;
@@ -457,6 +508,40 @@ function renderBegegnungen() {
 
     const lineup = document.createElement("div");
     lineup.className = "set-row";
+    const commitLineup = () => {
+      clearInvalidByRules(enc);
+      saveState();
+      renderBegegnungen();
+    };
+
+    lineup.append(
+      mkPlayerSelect(homePlayers, match.home1, m.type === "double" ? match.home2 : "", (v) => {
+        match.home1 = v;
+        commitLineup();
+      }),
+    );
+    if (m.type === "double") {
+      lineup.append(
+        mkPlayerSelect(homePlayers, match.home2, match.home1, (v) => {
+          match.home2 = v;
+          commitLineup();
+        }),
+      );
+    }
+
+    lineup.append(
+      mkPlayerSelect(guestPlayers, match.guest1, m.type === "double" ? match.guest2 : "", (v) => {
+        match.guest1 = v;
+        commitLineup();
+      }),
+    );
+    if (m.type === "double") {
+      lineup.append(
+        mkPlayerSelect(guestPlayers, match.guest2, match.guest1, (v) => {
+          match.guest2 = v;
+          commitLineup();
+        }),
+      );
     lineup.append(mkPlayerSelect(homePlayers, match.home1, isDouble ? match.home2 : "", (v) => {
       match.home1 = v;
       clearInvalidByRules(enc);
@@ -594,6 +679,7 @@ function fillBegegnungen(wb) {
 
     const totals = calcEncounter(enc);
 
+    MATCHES.forEach((m, idx) => {
     MATCH_DEFINITIONS.forEach((m, idx) => {
       const row = m.row;
       const match = enc.matches[idx];
