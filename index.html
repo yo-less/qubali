@@ -1,67 +1,31 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Badminton League Match Updater</title>
+    <title>Spielberichtsbogen – Web</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   </head>
   <body>
     <main class="container">
-      <h1>Badminton League – Match Result Updater</h1>
-      <p class="muted">Fill in the form, then export an updated copy of the league template workbook.</p>
+      <h1>Spielberichtsbogen (Web)</h1>
+      <p class="muted">Wie in der Excel-Datei: Allgemeines, Setzlisten, 1.–5. Begegnung und Export als ausgefüllte XLSX.</p>
 
-      <section class="card">
-        <h2>Match sheet details</h2>
-        <div class="grid meta-grid">
-          <label>Begegnung sheet
-            <select id="sheetName"></select>
-          </label>
-          <label>Group
-            <input id="group" placeholder="e.g. II" />
-          </label>
-          <label>Home team
-            <input id="homeTeam" placeholder="Home club" />
-          </label>
-          <label>Guest team
-            <input id="guestTeam" placeholder="Guest club" />
-          </label>
-          <label>Venue
-            <input id="venue" placeholder="Sports hall" />
-          </label>
-          <label>Date
-            <input id="date" type="date" />
-          </label>
-        </div>
-      </section>
+      <nav class="tabs" id="tabs"></nav>
 
-      <section class="card">
-        <h2>Set results</h2>
-        <p class="muted">Enter points for each set. Leave set 3 empty if not played.</p>
-        <div id="matches"></div>
-      </section>
+      <section class="card tab-panel" id="tab-allgemeines"></section>
+      <section class="card tab-panel hidden" id="tab-setzlisten"></section>
+      <section class="card tab-panel hidden" id="tab-begegnungen"></section>
 
-      <section class="card totals">
-        <h2>Computed summary</h2>
-        <div id="summary"></div>
-      </section>
-
-      <button id="downloadBtn">Download updated workbook (.xlsx)</button>
+      <button id="downloadBtn">Ausgefüllte XLSX herunterladen</button>
       <p id="status" class="muted"></p>
     </main>
 
-    <template id="matchTemplate">
-      <div class="match-row">
-        <div class="name"></div>
-        <div class="sets">
-          <label>Set 1 H<input type="number" min="0" class="home1" /></label>
-          <label>Set 1 G<input type="number" min="0" class="guest1" /></label>
-          <label>Set 2 H<input type="number" min="0" class="home2" /></label>
-          <label>Set 2 G<input type="number" min="0" class="guest2" /></label>
-          <label>Set 3 H<input type="number" min="0" class="home3" /></label>
-          <label>Set 3 G<input type="number" min="0" class="guest3" /></label>
-        </div>
+    <template id="playerRowTemplate">
+      <div class="player-row">
+        <span class="rank"></span>
+        <input class="player-name" placeholder="Spieler:in" />
       </div>
     </template>
 
